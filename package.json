@@ -1,0 +1,176 @@
+{
+	"_comment": "该配置文件包含插件的配置信息（插件命令、快捷键、菜单均在此配置）",
+	"publisher": "yxx",
+	"name": "i18n-helper",
+	"displayName": "I18n Performance Helper",
+	"description": "International Performance Expansion",
+	"version": "1.0.0",
+	"license": "MIT",
+	"keywords": [
+		"i18n"
+	],
+	"engines": {
+		"vscode": "^1.60.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"icon": "resources/icon.png",
+	"activationEvents": [
+		"onLanguage:vue",
+		"onLanguage:javascript",
+		"onLanguage:typescript",
+		"onLanguage:typescriptreact",
+		"onLanguage:javascriptreact"
+	],
+	"main": "./dist/extension.js",
+	"scripts": {
+		"vscode:prepublish": "npm run build",
+		"dev": "tsup --watch",
+		"build": "tsup",
+		"workbench:build": "vite build --watch --config ./src/editor/vite.config.ts",
+		"workbench:dev": "vite --config ./src/editor/vite.config.ts"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/yzydeveloper/i18n-workbench"
+	},
+	"homepage": "https://github.com/yzydeveloper/i18n-workbench",
+	"vsce": {
+		"dependencies": false
+	},
+	"dependencies": {
+		"@babel/core": "^7.15.8",
+		"@babel/generator": "^7.15.8",
+		"@babel/parser": "^7.15.8",
+		"@babel/template": "^7.15.4",
+		"@babel/traverse": "^7.15.4",
+		"@babel/types": "^7.15.6",
+		"@vue/compiler-core": "^3.2.20",
+		"axios": "^0.23.0",
+		"fast-glob": "^3.2.7",
+		"flat": "^5.0.2",
+		"vue": "3.2.26"
+	},
+	"devDependencies": {
+		"@types/babel__generator": "^7.6.3",
+		"@types/babel__traverse": "^7.14.2",
+		"@types/flat": "^5.0.2",
+		"@types/node": "^14.14.37",
+		"@types/vscode": "^1.52.0",
+		"@vitejs/plugin-vue": "^2.0.1",
+		"@yzydeveloper/eslint-config": "^0.1.2",
+		"eslint": "^7.23.0",
+		"ts-loader": "^9.2.6",
+		"tsup": "^6.2.3",
+		"typescript": "^4.2.3",
+		"vite": "^2.7.2"
+	},
+	"contributes": {
+		"commands": [
+			{
+				"command": "i18n-workbench.config-locales",
+				"title": "手动设置语言目录"
+			},
+			{
+				"command": "i18n-workbench.config-locales-auto",
+				"title": "自动设置语言目录"
+			},
+			{
+				"command": "i18n-workbench.open-workbench",
+				"title": "打开翻译工作台"
+			},
+			{
+				"command": "i18n-workbench.replace-with",
+				"title": "替换当前文档"
+			},
+			{
+				"command": "i18n-workbench.config-call-function-name",
+				"title": "设置系统中的国际化调用函数名称"
+			}
+		],
+		"configuration": {
+			"type": "object",
+			"title": "i18n-helper",
+			"properties": {
+				"i18n-workbench.localesPath": {
+					"type": "string",
+					"description": "翻译文件的目录（相对于项目根目录）"
+				},
+				"i18n-workbench.callFunctionName": {
+					"type": "string",
+					"description": "国际化调用函数名称"
+				},
+				"i18n-workbench.translate-apiRoot": {
+					"type": "string",
+					"default": "http://localhost:5000",
+					"description": ""
+				},
+				"i18n-workbench.translate-engines": {
+					"type": "array",
+					"items": {
+						"type": "string",
+						"enum": [
+							"google",
+							"google-cn",
+							"libretranslate"
+						],
+						"default": [
+							"google-cn"
+						]
+					},
+					"description": "翻译服务提供商"
+				},
+				"i18n-workbench.sourceLanguage": {
+					"type": "string",
+					"default": "zh-CN",
+					"description": "翻译源语言"
+				},
+				"i18n-workbench.ignoreFiles": {
+					"type": "array",
+					"item": {
+						"type": "string"
+					},
+					"description": "加载时要忽略的区域设置文件。\n接受一个glob数组"
+				}
+			}
+		},
+		"keybindings": [
+			{
+				"command": "i18n-workbench.open-workbench",
+				"key": "ctrl+f10",
+				"mac": "cmd+f10",
+				"when": "editorTextFocus"
+			}
+		],
+		"menus": {
+			"editor/context": [
+				{
+					"when": "editorFocus",
+					"command": "i18n-workbench.open-workbench",
+					"group": "navigation"
+				}
+			],
+			"editor/title": [
+				{
+					"when": "editorFocus && resourceLangId == javascript",
+					"command": "i18n-workbench.open-workbench",
+					"group": "navigation"
+				}
+			],
+			"editor/title/context": [
+				{
+					"when": "resourceLangId == javascript",
+					"command": "i18n-workbench.open-workbench",
+					"group": "navigation"
+				}
+			],
+			"explorer/context": [
+				{
+					"command": "i18n-workbench.open-workbench",
+					"group": "navigation"
+				}
+			]
+		}
+	}
+}

@@ -1,0 +1,236 @@
+<template>
+    <div id="workbench">
+        <div class="workbench-content">
+            <div class="workbench-content-header">
+                <div class="button save-button"
+                     @click="save">
+                    保存到文件
+                </div>
+            </div>
+            <div v-for="(item,index) in pendingWrite"
+                 :key="index"
+                 class="workbench-content-editor">
+                <div class="editor-header"></div>
+                <div class="editor-title">
+                    <span>Key：</span>
+                    <input v-model="item.languages.key"
+                           class="input">
+                    <div class="button-group">
+                        <div class="button"
+                             @click="translate(item,index)">
+                            翻译
+                        </div>
+                    </div>
+                </div>
+                <div v-for="(locale,localeIndex) in allLocales"
+                     :key="localeIndex"
+                     class="editor-core">
+                    <div class="editor-core-translate">
+                        {{ locale }}
+                    </div>
+                    <div class="editor-core-content">
+                        <input v-model="item.languages[locale]"
+                               class="input">
+                    </div>
+                    <div v-if="dirStructure==='dir'"
+                         class="editor-core-path">
+                        <select v-model="item.insertPath[locale]"
+                                class="select"
+                                :title="item.insertPath[locale]">
+                            <option v-for="path in languageMapFile[locale]"
+                                    :key="path"
+                                    class="option"
+                                    :value="path">
+                                {{ path }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+<script lang="ts">
+import type { PendingWrite } from './../core'
+import { EventTypes } from './events'
+import { vscode, useWorkbenchStore } from './useWorkbenchStore'
+
+export default {
+    setup() {
+        const {
+            dirStructure,
+            allLocales,
+            languageMapFile,
+            sourceLanguage,
+            pendingWrite,
+        } = useWorkbenchStore() // 从 useWorkbenchStore 获取各类初始化变量
+
+        function save() {
+            vscode.postMessage({
+                type: EventTypes.SAVE,
+                data: JSON.stringify(pendingWrite.value),
+            })
+        }
+
+        function translate(item: PendingWrite, index: number) {
+            const text = item.languages[sourceLanguage.value as string]
+            /**
+             * 1. 通知workbench.ts中的translateSignal进行翻译
+             * 2. translateSignal调用CurrentFile.ts中的translate实现翻译功能
+             * 3. 翻译完成后通知useWorkbenchStore.ts更新视图
+             */
+            vscode.postMessage({
+                type: EventTypes.TRANSLATE_SINGLE,
+                data: {
+                    index,
+                    text,
+                },
+            })
+        }
+        return {
+            dirStructure,
+            allLocales,
+            languageMapFile,
+            sourceLanguage,
+            pendingWrite,
+            save,
+            translate,
+        }
+    },
+}
+</script>
+ <style>
+.select {
+    width: 120px;
+    cursor: pointer;
+    background: var(--vscode-input-background);
+    padding: unset;
+    border: none;
+    color: var(--vscode-forground);
+    font-size: var(--vscode-font-size);
+}
+
+.select:focus {
+    outline: none;
+    box-shadow: none;
+}
+.option {
+    background: var(--vscode-inputOption-activeBackground);
+}
+
+.button-group {
+    display: flex;
+    align-items: center;
+    margin-left: 8px;
+}
+
+.button {
+    cursor: pointer;
+    position: relative;
+    padding: 0.4em 0.8em;
+    font-size: 0.8em;
+    display: inline-block;
+}
+
+.button:hover:before {
+    opacity: 0.3;
+}
+
+.button:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 3px;
+    z-index: -1;
+    pointer-events: none;
+    background: var(--vscode-foreground);
+    opacity: 0.1;
+}
+
+.input {
+    background: transparent;
+    padding: unset;
+    border: none;
+    color: var(--vscode-forground);
+    width: 100%;
+    font-size: var(--vscode-font-size);
+}
+
+.input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.save-button {
+    margin-top: 16px;
+    padding: 1.4em 1.8em;
+    font-size: 0.9em;
+}
+
+.workbench-content-editor {
+    margin-top: 16px;
+    padding: 8px 16px;
+    user-select: none;
+    position: relative;
+}
+
+.workbench-content-editor:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 4px;
+    z-index: -1;
+    pointer-events: none;
+    background-color: var(--vscode-foreground);
+    opacity: 0.07;
+}
+
+/* 编辑器标题 */
+.editor-title {
+    display: flex;
+    align-items: center;
+}
+
+.editor-title span {
+    width: 50px;
+    display: inline-block;
+    font-size: 12px;
+}
+
+.editor-title .input {
+    flex: 1;
+}
+
+/* 编辑器 */
+.editor-core {
+    display: flex;
+    min-height: 30px;
+    margin-top: 8px;
+    font-size: var(--vscode-font-size);
+    font-family: var(--vscode-editor-font-family);
+}
+
+.editor-core-translate {
+    width: 50px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+
+.editor-core-content {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.editor-core-path {
+    display: flex;
+    align-items: center;
+}
+</style>
