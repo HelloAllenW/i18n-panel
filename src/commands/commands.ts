@@ -1,6 +1,7 @@
 import Config from './../core/Config'
 
 export class Commands {
+    // 定义插件命令
     public static open_workbench = `${Config.extensionName}.open-workbench`
 
     public static replace_with = `${Config.extensionName}.replace-with`

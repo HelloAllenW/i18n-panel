@@ -4,7 +4,12 @@
             <div class="workbench-content-header">
                 <div class="button save-button"
                      @click="save">
-                    保存到文件
+                    保存到国际化文件
+                </div>
+                <div class="button save-button"
+                     @click="replaceCurFile"
+                     style="margin-left: 20px;">
+                     替换当前文档
                 </div>
             </div>
             <div v-for="(item,index) in pendingWrite"
@@ -15,12 +20,12 @@
                     <span>Key：</span>
                     <input v-model="item.languages.key"
                            class="input">
-                    <div class="button-group">
+                    <!--<div class="button-group">
                         <div class="button"
                              @click="translate(item,index)">
                             翻译
                         </div>
-                    </div>
+                    </div>-->
                 </div>
                 <div v-for="(locale,localeIndex) in allLocales"
                      :key="localeIndex"
@@ -54,7 +59,6 @@
 import type { PendingWrite } from './../core'
 import { EventTypes } from './events'
 import { vscode, useWorkbenchStore } from './useWorkbenchStore'
-
 export default {
     setup() {
         const {
@@ -69,6 +73,12 @@ export default {
             vscode.postMessage({
                 type: EventTypes.SAVE,
                 data: JSON.stringify(pendingWrite.value),
+            })
+        }
+
+        function replaceCurFile() {
+            vscode.postMessage({
+                type: "replaceCurFile"
             })
         }
 
@@ -95,6 +105,7 @@ export default {
             pendingWrite,
             save,
             translate,
+            replaceCurFile
         }
     },
 }

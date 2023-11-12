@@ -94,11 +94,11 @@ export class CurrentFile {
         })
 
         // 批量自动翻译
-        // if (this.extractorResult.length > 0) {
-        //     setTimeout(()=>{
-        //         this.autoTransAll();
-        //     }, 500)
-        // }
+        if (this.extractorResult.length > 0) {
+            setTimeout(()=>{
+                this.autoTransAll();
+            }, 500)
+        }
     }
 
     // 自动翻译所有
@@ -118,10 +118,9 @@ export class CurrentFile {
         })
     }
 
+    // 写入国际化文件
     static write(data: any) {
-        console.log('data', JSON.parse(data))
         const pendingWrite = this.handlePendingWrite(JSON.parse(data) as PendingWrite[])
-        console.log('pendingWrite', pendingWrite)
         const files = Object.keys(pendingWrite)
         Promise.all(
             files.map(file => {
@@ -135,7 +134,7 @@ export class CurrentFile {
 
     static handlePendingWrite(data: PendingWrite[]) {
         const pendingWriteParsed = data.reduce<Dictionary<PendingWriteParsed>>((result, item) => {
-            const { key, insertPath, languages } = item
+            const { languages:{ key }, insertPath, languages } = item
             const rootKey = key.split('.')[0]
             if (key && rootKey) {
                 Object.keys(item.insertPath).forEach(locale => {

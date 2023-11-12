@@ -2,7 +2,7 @@ import type { WebviewPanel } from 'vscode'
 import { join } from 'path'
 import { window, ViewColumn, Uri, Disposable } from 'vscode'
 import Config from './Config'
-import { Global, CurrentFile } from '.'
+import { Global, Replacer, CurrentFile } from '.'
 import { findLanguage, getHtmlForWebview, convertToCamelCase } from './../utils'
 
 export interface Message {
@@ -53,6 +53,9 @@ export class Workbench {
             case EventTypes.TRANSLATE_SINGLE:
                 this.translateSignal(data)
                 break
+            case "replaceCurFile":
+                this.replaceCurFile()
+                break
         }
     }
 
@@ -99,5 +102,22 @@ export class Workbench {
         Workbench.workbench = undefined
         Disposable.from(...this.disposables).dispose()
         this.panel.dispose()
+    }
+
+    // 替换当前文档之前的设置国际化调用函数
+    public async replaceCurFile() {
+        let name = Global.callFunctionName
+        if(name) Replacer.refactorDocument(name)
+    
+        if (!name) {
+            name = await window.showInputBox({
+                value: '',
+                placeHolder: '请输入系统中的国际化调用函数名称',
+                ignoreFocusOut: true
+            }) ?? ''
+            Global.callFunctionName = name
+            name && Replacer.refactorDocument(name)
+            window.showInformationMessage(`配置国际化调用函数名称成功 ${name}`)
+        }
     }
 }
